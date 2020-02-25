@@ -12,7 +12,7 @@ router.use(asyncMiddleWare(async (req, res, next) => {
 }));
 
 router.get(['/', '/health-check'], asyncMiddleWare(async (req, res) => {
-    res.json({message: 'hooray! welcome to our api!'});
+    await res.json({message: 'hooray! welcome to our api!'});
 }));
 
 router.get('/steal', asyncMiddleWare(async (req, res) => {
