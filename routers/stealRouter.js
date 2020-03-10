@@ -25,6 +25,9 @@ router.get('/steal', asyncMiddleWare(async (req, res) => {
                             ps4Id: game.id,
                             name: game.attributes.name,
                             imageUrl: game.attributes['thumbnail-url-base'],
+                            prices: Object.keys(game.attributes.skus[0].prices).map(key => {
+                                return {userType: key, price: game.attributes.skus[0].prices[key]['actual-price'].display}
+                            })
                         };
                     });
                 res.send(gameArray)
