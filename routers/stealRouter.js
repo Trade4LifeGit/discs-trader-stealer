@@ -1,7 +1,7 @@
 const express = require('express');
 const axios = require("axios");
 
-const apiCreds = require('../resources/ps4Creds');
+const apiConstants = require('../resources/ps4Creds');
 const asyncMiddleWare = require('../middlewares/asyncMiddleware');
 
 const router = express.Router();
@@ -12,14 +12,27 @@ router.use(asyncMiddleWare(async (req, res, next) => {
 }));
 
 router.get(['/', '/health-check'], asyncMiddleWare(async (req, res) => {
-    res.json({message: 'hooray! welcome to our api!'});
+    await res.json({message: 'hooray! welcome to our api!'});
 }));
 
 router.get('/steal', asyncMiddleWare(async (req, res) => {
-    console.log("req.query:", req.query);
-    axios.get(apiCreds.PS4_API_PATH, {params: Object.assign({bucket: "games"}, req.query)})
+    axios.get(apiConstants.PS4_API_PATH, {params: Object.assign({bucket: "games"}, req.query)})
         .then(response => {
-                res.send(response.data.included.map(game => game.attributes.name))
+                const gameArray = response.data.included
+                    .filter(game => !apiConstants.WRONG_GAME_NAMES.includes(game.attributes.name) && !game.attributes.parent)
+                    .map(game => {
+                        return {
+                            ps4Id: game.id,
+                            name: game.attributes.name,
+                            imageUrl: game.attributes['thumbnail-url-base'],
+                            prices: game.attributes.skus
+                                ? Object.keys(game.attributes.skus[0].prices).map(key => {
+                                    return {userType: key, price: game.attributes.skus[0].prices[key]['actual-price'].display}
+                                })
+                                : null
+                        };
+                    });
+                res.send(gameArray)
             }
         );
 }));
