@@ -3,11 +3,12 @@ const axios = require("axios");
 
 const apiConstants = require('../resources/ps4Creds');
 const asyncMiddleWare = require('../middlewares/asyncMiddleware');
+const logger = require('../utils/logger')
 
 const router = express.Router();
 
 router.use(asyncMiddleWare(async (req, res, next) => {
-    console.log('Something is happening.');
+    logger.debug('Something is happening.');
     next();
 }));
 
