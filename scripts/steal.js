@@ -1,5 +1,6 @@
 const axios = require("axios");
 const apiConstants = require('../resources/ps4Creds');
+const logger = require('../utils/logger')
 
 const _ = require("lodash")
 
@@ -33,7 +34,7 @@ Promise.all(promises).then(response => {
             })
     )
 
-    console.log('resultGames length:', resultGames.length);
+    logger.debug(`resultGames length: ${resultGames.length}`);
 
     const fs = require('fs');
     fs.writeFile("testGames.json", JSON.stringify(resultGames), function (err) {
