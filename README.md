@@ -20,3 +20,6 @@
 ```shell script
     npm run start
 ```
+
+# Usefull links
+## 1. [Link to PS4 API call](https://store.playstation.com/valkyrie-api/en/US/999/container/STORE-MSF77008-ALLGAMES?size=30&bucket=games&start=7890)
