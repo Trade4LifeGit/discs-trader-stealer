@@ -3,7 +3,7 @@ const router = express.Router();
 
 const asyncWrapper = require('../middlewares/asyncWrapper');
 const logger = require('../utils/logger')
-const steal = require('../scripts/steal')
+const steal = require('../services/steal')
 
 router.use(asyncWrapper(async (req, res, next) => {
     logger.debug('Something is happening.');
