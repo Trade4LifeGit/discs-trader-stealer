@@ -2,23 +2,33 @@ const axios = require("axios");
 const apiConstants = require('../resources/ps4Creds');
 const logger = require('../utils/logger')
 
-const _ = require("lodash")
+const steal = async () => {
+    const gameBucketsNumber = []
 
-const bucketStart = _.range(0, 7890, 30)
+    for (let i = 0; i <= 7890; i = i + 30) {
+        gameBucketsNumber.push(i)
+    }
 
-const promises = bucketStart.map(start =>
-    axios.get(apiConstants.PS4_API_PATH, {
-        params: {
-            bucket: "games",
-            size: "30",
-            start: start
-        }
-    })
-)
+    logger.debug(`gameBucketsNumber length: ${gameBucketsNumber.length}`)
 
-Promise.all(promises).then(response => {
-    let resultGames = response.flatMap(resp =>
-        resp.data.included
+    const promises = gameBucketsNumber.map(start =>
+        axios.get(apiConstants.PS4_API_PATH, {
+            params: {
+                bucket: "games",
+                size: "30",
+                start: start
+            }
+        })
+    )
+
+    logger.debug('prepare promises')
+
+    const resultGamesResponse = await Promise.all(promises);
+
+    logger.debug(`resultGamesResponse length: ${resultGamesResponse.length}`);
+
+    const oldAlgorithmGamesResponse = resultGamesResponse.flatMap(response =>
+        response.data.included
             .filter(game => !apiConstants.WRONG_GAME_NAMES.includes(game.attributes.name) && !game.attributes.parent)
             .map(game => {
                 return {
@@ -32,14 +42,44 @@ Promise.all(promises).then(response => {
                         : null
                 };
             })
-    )
+    );
 
-    logger.debug(`resultGames length: ${resultGames.length}`);
+    const newAlgorithmGamesResponse = resultGamesResponse.flatMap(response =>
+        response.data.included
+            .filter(game => !apiConstants.WRONG_GAME_NAMES.includes(game.attributes.name) && !game.attributes.parent)
+            .map(game => {
+                return {
+                    ps4Id: game.id,
+                    title: game.attributes.name,
+                    description: game.attributes["long-description"],
+                    image: game.attributes['thumbnail-url-base'],
+                    releaseDate: game.attributes["release-date"],
+                    gameContentType: game.attributes["game-content-type"],
+                    prices: game.attributes.skus
+                        ? Object.keys(game.attributes.skus[0].prices).map(key => {
+                            return {userType: key, price: game.attributes.skus[0].prices[key]['actual-price'].display}
+                        })
+                        : null,
+                    psnURL: `https://store.playstation.com/en-us/product/${game.id}`,
+                    metadataDump: game.attributes
+                }
+            })
+    );
 
     const fs = require('fs');
-    fs.writeFile("testGames.json", JSON.stringify(resultGames), function (err) {
+    fs.writeFile("newAlgorithmGamesResponse.json", JSON.stringify(newAlgorithmGamesResponse), function (err) {
         if (err) {
             console.error('Crap happens');
         }
     });
-})
+
+    fs.writeFile("oldAlgorithmGamesResponse.json", JSON.stringify(oldAlgorithmGamesResponse), function (err) {
+        if (err) {
+            console.error('Crap happens');
+        }
+    });
+
+    return {old: oldAlgorithmGamesResponse.length, new: newAlgorithmGamesResponse.length}
+}
+
+module.exports = steal
