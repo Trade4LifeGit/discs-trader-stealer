@@ -2,21 +2,21 @@ const express = require('express');
 const axios = require("axios");
 
 const apiConstants = require('../resources/ps4Creds');
-const asyncMiddleWare = require('../middlewares/asyncMiddleware');
+const asyncWrapper = require('../middlewares/asyncWrapper');
 const logger = require('../utils/logger')
 
 const router = express.Router();
 
-router.use(asyncMiddleWare(async (req, res, next) => {
+router.use(asyncWrapper(async (req, res, next) => {
     logger.debug('Something is happening.');
     next();
 }));
 
-router.get(['/', '/health-check'], asyncMiddleWare(async (req, res) => {
+router.get(['/', '/health-check'], asyncWrapper(async (req, res) => {
     await res.json({message: 'hooray! welcome to our api!'});
 }));
 
-router.get('/steal', asyncMiddleWare(async (req, res) => {
+router.get('/steal', asyncWrapper(async (req, res) => {
     axios.get(apiConstants.PS4_API_PATH, {params: Object.assign({bucket: "games"}, req.query)})
         .then(response => {
                 const gameArray = response.data.included

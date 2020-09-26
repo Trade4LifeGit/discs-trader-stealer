@@ -4,10 +4,10 @@
  * Module dependencies.
  */
 
-const app = require('../app');
+const app = require('./app');
 const debug = require('debug')('test-env:server');
 const http = require('http');
-const logger = require('../utils/logger')
+const logger = require('./utils/logger')
 
 /**
  * Get port from environment and store in Express.

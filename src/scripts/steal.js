@@ -2,11 +2,13 @@ const axios = require("axios");
 const apiConstants = require('../resources/ps4Creds');
 const logger = require('../utils/logger')
 
-const _ = require("lodash")
+const gameBucketsNumber = []
 
-const bucketStart = _.range(0, 7890, 30)
+for (let i = 0; i <= 7890; i = i + 30) {
+    gameBucketsNumber.push(i)
+}
 
-const promises = bucketStart.map(start =>
+const promises = gameBucketsNumber.map(start =>
     axios.get(apiConstants.PS4_API_PATH, {
         params: {
             bucket: "games",
