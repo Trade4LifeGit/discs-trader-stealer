@@ -27,24 +27,7 @@ const steal = async () => {
 
     logger.debug(`resultGamesResponse length: ${resultGamesResponse.length}`);
 
-    const oldAlgorithmGamesResponse = resultGamesResponse.flatMap(response =>
-        response.data.included
-            .filter(game => !apiConstants.WRONG_GAME_NAMES.includes(game.attributes.name) && !game.attributes.parent)
-            .map(game => {
-                return {
-                    ps4Id: game.id,
-                    name: game.attributes.name,
-                    imageUrl: game.attributes['thumbnail-url-base'],
-                    prices: game.attributes.skus
-                        ? Object.keys(game.attributes.skus[0].prices).map(key => {
-                            return {userType: key, price: game.attributes.skus[0].prices[key]['actual-price'].display}
-                        })
-                        : null
-                };
-            })
-    );
-
-    const newAlgorithmGamesResponse = resultGamesResponse.flatMap(response =>
+    return resultGamesResponse.flatMap(response =>
         response.data.included
             .filter(game => !apiConstants.WRONG_GAME_NAMES.includes(game.attributes.name) && !game.attributes.parent)
             .map(game => {
@@ -64,22 +47,7 @@ const steal = async () => {
                     metadataDump: game.attributes
                 }
             })
-    );
-
-    const fs = require('fs');
-    fs.writeFile("newAlgorithmGamesResponse.json", JSON.stringify(newAlgorithmGamesResponse), function (err) {
-        if (err) {
-            console.error('Crap happens');
-        }
-    });
-
-    fs.writeFile("oldAlgorithmGamesResponse.json", JSON.stringify(oldAlgorithmGamesResponse), function (err) {
-        if (err) {
-            console.error('Crap happens');
-        }
-    });
-
-    return {old: oldAlgorithmGamesResponse.length, new: newAlgorithmGamesResponse.length}
+    )
 }
 
 module.exports = steal
