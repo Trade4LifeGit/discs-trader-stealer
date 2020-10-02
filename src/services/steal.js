@@ -1,4 +1,6 @@
 const axios = require("axios");
+const moment = require("moment")
+const {saveDumpGames} = require('./persistence')
 const {PS4_API_PATH, PS4_NEWEST_GAMES_API_PATH, WRONG_GAME_NAMES} = require('../resources/ps4Creds');
 const logger = require('../utils/logger')
 
@@ -22,7 +24,8 @@ const parseGame = game => ({
         })
         : null,
     psnURL: `https://store.playstation.com/en-us/product/${game.id}`,
-    metadataDump: game.attributes
+    timestamp: moment()
+    // metadataDump: game.attributes
 })
 
 const handlePs4Request = async (buckets, apiPath) => {
@@ -40,14 +43,20 @@ const handlePs4Request = async (buckets, apiPath) => {
     logger.debug('prepare promises')
 
     const resultGamesResponse = await Promise.all(promises);
+    const gamesArray = splitArrays(...resultGamesResponse.map(response => response.data.included))
 
-    logger.debug(`resultGamesResponse length: ${resultGamesResponse.length}`);
+    const [pureGames, dumpGames] = gamesArray
+        .reduce((resultArrays, game) => (!WRONG_GAME_NAMES.includes(game.attributes.name) && !game.attributes.parent)
+        ? [[...resultArrays[0], parseGame(game)], resultArrays[1]]
+        : [resultArrays[0], [...resultArrays[1], parseGame(game)]], [[], []]);
 
-    return splitArrays(...resultGamesResponse.map(response =>
-        response.data.included
-            .filter(game => !WRONG_GAME_NAMES.includes(game.attributes.name) && !game.attributes.parent)
-            .map(game => parseGame(game))
-    ))
+    logger.debug(`Total games: ${gamesArray.length}`)
+    logger.debug(`Pure games: ${pureGames.length}`)
+    logger.debug(`Dump games: ${dumpGames.length}`)
+
+    await saveDumpGames(dumpGames)
+
+    return pureGames
 }
 
 const stealAll = async () => {

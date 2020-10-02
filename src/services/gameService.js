@@ -1,4 +1,4 @@
-const {isGameContains, saveGames} = require('./persistence')
+const {isGameContains, savePureGames} = require('./persistence')
 const {stealNewest} = require('./steal');
 const logger = require('../utils/logger')
 const AsyncArray = require("../utils/AsyncArray");
@@ -38,7 +38,7 @@ const processNextPage = async (lastPage, totalFromPs4, totalFiltered) => {
 }
 
 const updateGames = async () => {
-    const pages = [30, 60];
+    const pages = [0, 30];
 
     let [fromPs4, filtered] = await processGamesFromPs(pages)
 
@@ -50,7 +50,7 @@ const updateGames = async () => {
     }
 
     if (filtered.length > 0) {
-        const addedGamesResp = await saveGames(filtered)
+        const addedGamesResp = await savePureGames(filtered)
         logger.debug(`added games resp: ${addedGamesResp.length}`)
     }
 

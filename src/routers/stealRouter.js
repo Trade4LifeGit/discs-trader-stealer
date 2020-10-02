@@ -4,7 +4,7 @@ const router = express.Router();
 const asyncWrapper = require('../middlewares/asyncWrapper');
 const logger = require('../utils/logger')
 const {stealAll} = require('../services/steal')
-const {saveGames, getGames} = require('../services/persistence')
+const {savePureGames, getGames} = require('../services/persistence')
 const {updateGames} = require('../services/gameService')
 
 router.use(asyncWrapper(async (req, res, next) => {
@@ -23,7 +23,7 @@ router.get('/stealAll', asyncWrapper(async (req, res) => {
 
 router.post('/stealAll', asyncWrapper(async (req, res) => {
     const stealGamesRes = await stealAll();
-    const saveResult = await saveGames(stealGamesRes)
+    const saveResult = await savePureGames(stealGamesRes)
 
     res.json({message: `Steal ${JSON.stringify(stealGamesRes.length)} games`, saveResult})
 }));
