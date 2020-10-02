@@ -22,7 +22,7 @@ const parseGame = game => ({
         })
         : null,
     psnURL: `https://store.playstation.com/en-us/product/${game.id}`,
-    // metadataDump: game.attributes
+    metadataDump: game.attributes
 })
 
 const handlePs4Request = async (buckets, apiPath) => {
@@ -41,7 +41,7 @@ const handlePs4Request = async (buckets, apiPath) => {
 
     const resultGamesResponse = await Promise.all(promises);
 
-    logger.debug(`resultGamesResponse length: ${resultGamesResponse[0]}`);
+    logger.debug(`resultGamesResponse length: ${resultGamesResponse.length}`);
 
     return splitArrays(...resultGamesResponse.map(response =>
         response.data.included
@@ -60,12 +60,8 @@ const stealAll = async () => {
     return await handlePs4Request(gameBucketsNumber, PS4_API_PATH)
 }
 
-const stealNewest = async (transactionId) => {
-    const gameBucketsNumber = [30, 60];
-
-    if (!transactionId) {
-        return await handlePs4Request(gameBucketsNumber, PS4_NEWEST_GAMES_API_PATH);
-    }
+const stealNewest = async (pages) => {
+    return await handlePs4Request(pages, PS4_NEWEST_GAMES_API_PATH);
 }
 
 module.exports = {stealAll, stealNewest}

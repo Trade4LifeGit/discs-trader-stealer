@@ -3,7 +3,7 @@ const router = express.Router();
 
 const asyncWrapper = require('../middlewares/asyncWrapper');
 const logger = require('../utils/logger')
-const {stealAll, stealNewest} = require('../services/steal')
+const {stealAll} = require('../services/steal')
 const {saveGames, getGames} = require('../services/persistence')
 const {updateGames} = require('../services/gameService')
 
@@ -29,9 +29,7 @@ router.post('/stealAll', asyncWrapper(async (req, res) => {
 }));
 
 router.post('/stealNewest', asyncWrapper(async (req, res) => {
-    const newestGames = await stealNewest();
-
-    const updatedGamesCount = await updateGames(newestGames)
+    const updatedGamesCount = await updateGames()
 
     logger.debug('done')
 

@@ -14,18 +14,17 @@ const saveGames = async (games) => {
 }
 
 const getGames = async () => {
-    return await gamesCollection.find({});
+    return await testGameCollection.find({});
 }
 
 const getGameByPsId = async (game) => {
     logger.debug(`getGameByPsId ps4Id ${game.ps4Id}`)
-    return await gamesCollection.find({ps4Id: game.ps4Id})
+    return await testGameCollection.find({ps4Id: game.ps4Id})
 }
 
 const isGameContains = async (game) => {
-    logger.debug(`isGameContains ps4Id ${game.ps4Id}`)
     const res = await testGameCollection.find({ps4Id: game.ps4Id});
-    logger.debug(`is game exist: ${res.length > 0}`)
+    logger.debug(`is game ${game.ps4Id} exist: ${res.length > 0}`)
     return res.length > 0;
 }
 
