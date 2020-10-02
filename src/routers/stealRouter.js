@@ -3,7 +3,8 @@ const router = express.Router();
 
 const asyncWrapper = require('../middlewares/asyncWrapper');
 const logger = require('../utils/logger')
-const steal = require('../scripts/steal')
+const steal = require('../services/steal')
+const {saveGames, getGames} = require('../services/persistence')
 
 router.use(asyncWrapper(async (req, res, next) => {
     logger.debug('Something is happening.');
@@ -14,10 +15,16 @@ router.get(['/', '/health-check'], asyncWrapper(async (req, res) => {
     await res.json({message: 'hooray! welcome to our api!'});
 }));
 
+router.get('/steal', asyncWrapper(async (req, res) => {
+    const games = await getGames()
+    res.json({games: games})
+}))
+
 router.post('/steal', asyncWrapper(async (req, res) => {
     const stealGamesRes = await steal();
+    const saveResult = await saveGames(stealGamesRes)
 
-    res.json({message: `Steal ${JSON.stringify(stealGamesRes)} games`})
+    res.json({message: `Steal ${JSON.stringify(stealGamesRes.length)} games`, saveResult})
 }));
 
 module.exports = router;
