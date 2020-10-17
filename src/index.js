@@ -14,7 +14,7 @@ const logger = require('./utils/logger')
  */
 
 const port = normalizePort(process.env.PORT || '8080');
-const timeout = +process.env.SERVER_TIMEOUT || 60000;
+const timeout = +process.env.SERVER_TIMEOUT || 2400000;
 
 app.set('port', port);
 

@@ -23,9 +23,9 @@ router.get('/stealAll', asyncWrapper(async (req, res) => {
 
 router.post('/stealAll', asyncWrapper(async (req, res) => {
     const stealGamesRes = await stealAll();
-    const saveResult = await savePureGames(stealGamesRes)
+    await savePureGames(stealGamesRes)
 
-    res.json({message: `Steal ${JSON.stringify(stealGamesRes.length)} games`, saveResult})
+    res.json({message: `Steal ${JSON.stringify(stealGamesRes.length)} games`})
 }));
 
 router.post('/stealNewest', asyncWrapper(async (req, res) => {

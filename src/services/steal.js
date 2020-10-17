@@ -13,7 +13,7 @@ const splitArrays = (...arrays) => arrays.reduce((result, currentArray) => [...r
 
 const parseGame = game => ({
     ps4Id: game.id,
-    title: game.attributes.name,
+    title: game.attributes.name.trim(),
     description: game.attributes["long-description"],
     image: game.attributes['thumbnail-url-base'],
     releaseDate: game.attributes["release-date"],
@@ -27,6 +27,8 @@ const parseGame = game => ({
     timestamp: moment()
     // metadataDump: game.attributes
 })
+
+const isGameTitleValid = title => !(title === "Game" || WRONG_GAME_NAMES.includes(title));
 
 const handlePs4Request = async (buckets, apiPath) => {
     logger.debug(`gameBucketsNumber length: ${buckets.length}`)
@@ -46,7 +48,7 @@ const handlePs4Request = async (buckets, apiPath) => {
     const gamesArray = splitArrays(...resultGamesResponse.map(response => response.data.included))
 
     const [pureGames, dumpGames] = gamesArray
-        .reduce((resultArrays, game) => (!WRONG_GAME_NAMES.includes(game.attributes.name) && !game.attributes.parent)
+        .reduce((resultArrays, game) => (isGameTitleValid(game.attributes.name) && !game.attributes.parent)
         ? [[...resultArrays[0], parseGame(game)], resultArrays[1]]
         : [resultArrays[0], [...resultArrays[1], parseGame(game)]], [[], []]);
 
