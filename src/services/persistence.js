@@ -37,4 +37,4 @@ const isGameContains = async (game) => {
     return res.length > 0;
 }
 
-module.exports = {savePureGames: savePureGames, getGames, isGameContains, getGameByPsId, saveDumpGames}
+module.exports = {savePureGames, getGames, isGameContains, getGameByPsId, saveDumpGames}
