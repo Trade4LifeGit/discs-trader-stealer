@@ -3,17 +3,38 @@ const logger = require("../utils/logger");
 require('dotenv').config();
 
 const MONGO_URI = process.env.MONGO_URI
+const PURE_GAMES_COLLECTION_NAME = process.env.PURE_GAMES_COLLECTION_NAME || "pure-games"
+const DUMP_GAMES_COLLECTION_NAME = process.env.DUMP_GAMES_COLLECTION_NAME || "dump-games"
 
 logger.debug(`mongourl: ${MONGO_URI}`);
-const db = monk(MONGO_URI)
-const gamesCollection = db.get('games')
+logger.debug(`pure games collection name: ${PURE_GAMES_COLLECTION_NAME}`)
+logger.debug(`dump games collection name: ${DUMP_GAMES_COLLECTION_NAME}`)
 
-const saveGames = async (games) => {
-    return await gamesCollection.insert(games)
+const db = monk(MONGO_URI)
+const pureGamesCollection = db.get(PURE_GAMES_COLLECTION_NAME)
+const dumpGamesCollection = db.get(DUMP_GAMES_COLLECTION_NAME)
+
+const savePureGames = async (games) => {
+    return await pureGamesCollection.insert(games)
+}
+
+const saveDumpGames = async (games) => {
+    return await dumpGamesCollection.insert(games)
 }
 
 const getGames = async () => {
-    return await gamesCollection.find({});
+    return await pureGamesCollection.find({});
 }
 
-module.exports = {saveGames, getGames}
+const getGameByPsId = async (game) => {
+    logger.debug(`getGameByPsId ps4Id ${game.ps4Id}`)
+    return await pureGamesCollection.find({ps4Id: game.ps4Id})
+}
+
+const isGameContains = async (game) => {
+    const res = await pureGamesCollection.find({ps4Id: game.ps4Id});
+    logger.debug(`is game ${game.ps4Id} exist: ${res.length > 0}`)
+    return res.length > 0;
+}
+
+module.exports = {savePureGames, getGames, isGameContains, getGameByPsId, saveDumpGames}
